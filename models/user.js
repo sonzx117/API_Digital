@@ -1,5 +1,6 @@
 const mongoose = require('mongoose'); // Erase if already required
 const bcrypt = require('bcrypt')
+const crypto = require('crypto')
 
 //Hash password
 
@@ -65,6 +66,19 @@ userSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, 12);
     next();
 })
+//isMatch password
+userSchema.methods = {
+    matchPassword: async function (enteredPassword) {
+        return await bcrypt.compare(enteredPassword, this.password);
+    },
+    //Create password changeToken
+    createPasswordChangeToken: function () {
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        this.passwordResetExpires = Date.now() + 15 * 60 * 1000
+        return resetToken;
+    }
+}
 
 
 //Export the model
