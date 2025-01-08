@@ -56,12 +56,12 @@ const loginUser = asyncHandler(async (req, res) => {
         }
         else {
             //Tach password va role ra khoi user
-            const { password, role, ...userData } = user.toObject();
+            const { password, role,refreshToken, ...userData } = user.toObject();
             //Tao accessToken va refreshToken
             const accessToken = generateAccessToken(user._id, role);
-            const refreshToken = generateRefreshToken(user._id);
+            const newrefreshToken = generateRefreshToken(user._id);
             //Luu refreshToken vao database
-            await User.findByIdAndUpdate(user._id, { refreshToken}, { new: true });
+            await User.findByIdAndUpdate(user._id, { refreshToken: newrefreshToken}, { new: true });
             //Luu refreshToken vao cookie
             res.cookie('refreshToken', refreshToken, { httpOnly: true , maxAge: 7*24*60*60*1000});
             return res.status(200).json({
@@ -181,6 +181,51 @@ const resetPassword = asyncHandler(async (req, res) => {
       mes: "Thay đổi mật khẩu thành công",
     });
 });
+//get all users
+const getUsers = asyncHandler(async (req, res) => {
+    //tach password va role refreshToken ra khoi response
+    const response = await User.find().select('-password -role -refreshToken');
+    return res.status(200).json({
+        success: response ? true : false,
+        users : response
+    })
+})
+//delete user theo id 
+const deleteUser = asyncHandler(async (req, res) => {
+    const { _id } = req.query;
+    if (!_id) {
+        return res.status(400).json({
+            success: false,
+            message: 'Missing input'
+        });
+    }
+    const user = await User.findByIdAndDelete(_id);
+    return res.status(200).json({
+        success: user ? true : false,
+        message: user ? 'User deleted successfully' : 'User not found'
+    })
+})
+//Update info User by user
+const updateUser = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    if (!_id || !req.body) throw new Error("Missing input");
+    const user = await User.findByIdAndUpdate(_id, req.body, { new: true }).select('-password -role -refreshToken');;
+    return res.status(200).json({
+      success: user ? true : false,
+      user,
+    });
+})
+//Update info User by admin
+const updateUserbyAdmin = asyncHandler(async (req, res) => {
+    const { uid } = req.params;
+    if ( Object.keys(req.body).length === 0) throw new Error("Missing input");
+    const user = await User.findByIdAndUpdate(uid, req.body, { new: true }).select('-password -role -refreshToken');;
+    return res.status(200).json({
+      success: user ? true : false,
+      updateUser: user? user : 'Something went wrong'
+    });
+})
+
 
 module.exports = {
     registerUser,
@@ -189,5 +234,9 @@ module.exports = {
     refreshToken,
     logoutUser,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    getUsers,
+    deleteUser, 
+    updateUser,
+    updateUserbyAdmin
 }
