@@ -24,8 +24,8 @@ const productSchema = new mongoose.Schema({
         required: true,
     },
     category: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
     },
     quantity: {
         type: Number,
@@ -40,7 +40,7 @@ const productSchema = new mongoose.Schema({
     },
     color: {
         type: String,
-        required: true,  
+        enum: ['Black', 'White', 'Red', 'Blue'], 
     },
     ratings: [
         {
