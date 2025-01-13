@@ -127,11 +127,65 @@ const deleteProduct = asyncHandler(async (req, res) => {
         message: product ? 'Product deleted successfully' : 'Product not found'
     })
 })
+//Rating Product
+const ratingProd = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { star, comment, pid } = req.body;
+    if (!star || !pid) {
+        return res.status(400).json({
+            success: false,
+            message: 'Missing input'
+        })
+    }
+    const ratingProduct = await Product.findById(pid);
+    if (!ratingProduct) {
+        return res.status(400).json({
+            success: false,
+            message: 'Product not found'
+        })
+    }
+    //
+    const alreadyRated = ratingProduct?.ratings?.find(r => r.postedBy.toString() === _id.toString());
+    if (alreadyRated) {
+        //update rating
+        const ratingIndex = ratingProduct.ratings.findIndex(r => r.postedBy.toString() === _id.toString());
+        console.log(ratingIndex)
+        ratingProduct.ratings[ratingIndex].star = star;
+        ratingProduct.ratings[ratingIndex].comment = comment;
+        await ratingProduct.save();
+    }
+    else {
+        //add rating
+        ratingProduct.ratings.push({
+            star,
+            comment,
+            postedBy: _id
+        });
+        await ratingProduct.save();
+    }
+    //Update total rating
+    const totalRating = ratingProduct.ratings.reduce((sum, item) => {
+        return !isNaN(item.star) ? sum + item.star : sum;
+    }, 0);
+
+    const totalRatings = ratingProduct.ratings.length;
+    const total = totalRatings > 0 ? totalRating / totalRatings : 0; // Đảm bảo không chia cho 0
+
+    // Cập nhật totalRatings (trung bình đánh giá) vào sản phẩm
+    await Product.findByIdAndUpdate(pid, { totalRatings: total }, { new: true });
+    console.log(total)
+    return res.status(200).json({
+        status: true,
+        message: 'Rating success'
+    })
+
+})
 
 module.exports = {
     createProduct,
     getProduct,
     getProducts,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    ratingProd
 }

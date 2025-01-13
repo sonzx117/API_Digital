@@ -11,7 +11,10 @@ router.post('/', [verifyAccessToken, isAdmin], ctrls.createProduct);
 router.get('/:pid', ctrls.getProduct);
 router.get('/', ctrls.getProducts);
 
+router.put('/ratings', [verifyAccessToken], ctrls.ratingProd);
+
 router.put('/:pid', [verifyAccessToken, isAdmin], ctrls.updateProduct);
-router.delete('/:pid',[verifyAccessToken,isAdmin], ctrls.deleteProduct);
+router.delete('/:pid', [verifyAccessToken, isAdmin], ctrls.deleteProduct);
+
 
 module.exports = router;
