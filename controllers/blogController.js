@@ -106,7 +106,9 @@ const dislikeBlog = asyncHandler(async (req, res) => {
 })
 const getdeltaiBlog = asyncHandler(async (req, res) => { 
     const { bid } = req.params;
-    const blog = await Blog.findById(bid);
+    const blog = await Blog.findByIdAndUpdate(bid, { $inc: { numberViews: 1 } }, { new: true })
+        .populate('likes', 'firstname lastname')
+        .populate('dislikes', 'firstname lastname');
     return res.json({
         success: blog ? true : false,
         message: blog ? blog : 'Something went wrong',
