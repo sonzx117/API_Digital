@@ -114,6 +114,19 @@ const getdeltaiBlog = asyncHandler(async (req, res) => {
         message: blog ? blog : 'Something went wrong',
     })
 })
+const uploadImageBlog = asyncHandler(async (req, res) => { 
+    const { bid } = req.params;
+    if (!req.files) throw new Error("Missing inputs");
+    const blog = await Blog.findByIdAndUpdate(bid,
+    {
+        $push: { images: { $each: req.files.map((el) => el.path) } },
+      },
+        { new: true });
+    return res.status(blog ? 200 : 400).json({
+        success: blog ? true : false,
+        message: blog ? blog : 'Cannot upload image',
+    })
+})
 module.exports = {
     createBlog,
     getBlogs,
@@ -121,6 +134,6 @@ module.exports = {
     deleteBlog,
     likeBlog,
     dislikeBlog,
-    getdeltaiBlog
-
+    getdeltaiBlog,
+    uploadImageBlog
 }

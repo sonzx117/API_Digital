@@ -1,6 +1,7 @@
 const mongoose = require('mongoose'); // Erase if already required
 const bcrypt = require('bcrypt')
-const crypto = require('crypto')
+const crypto = require('crypto');
+const { type } = require('os');
 
 //Hash password
 
@@ -33,11 +34,14 @@ var userSchema = new mongoose.Schema({
         type:String,
         default:'user',
     },
-    cart: {
-        type: Array,
-        default: [],
-    },
-    address: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
+    cart: [
+        {
+          product: { type: mongoose.Types.ObjectId, ref: "Product" },
+          quantity: Number,
+          color: String,
+        },
+      ],
+    address: String,
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     isBlocked: {
         type: Boolean,

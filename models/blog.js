@@ -30,7 +30,7 @@ const blogSchema = new mongose.Schema({
         }
     ],
     images: {
-        type: String,
+        type: Array,
         default: "https://c0.wallpaperflare.com/preview/639/306/330/aerial-background-blog-cafe.jpg",
     },
     author: {

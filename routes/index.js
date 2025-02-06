@@ -5,6 +5,7 @@ const blogRoutes = require('./blogRoute');
 const blogCategoryRoutes = require('./blogCateRoute');
 const brandRoutes = require('./brandRoute');
 const couponRoutes = require('./couponRoute');
+const orderRoutes = require('./orderRoute');
 const { notFound, errorHandler } = require('../middleware/errHandller');
 
 
@@ -17,6 +18,7 @@ const initRoutes = (app) => {
     app.use('/api/blogcategory', blogCategoryRoutes);
     app.use('/api/brand', brandRoutes);
     app.use('/api/coupon', couponRoutes);
+    app.use('/api/order', orderRoutes);
 
 
     app.use(notFound);
