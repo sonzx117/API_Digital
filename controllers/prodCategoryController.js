@@ -1,6 +1,7 @@
 const Category = require('../models/productCategory');
 const slugify = require('slugify');
 const asyncHandler = require('express-async-handler');
+const cate_data = require('../data/cate_brand');
 require('dotenv').config();
 //Create Category
 const createCategory = asyncHandler(async (req, res) => {
@@ -81,10 +82,31 @@ const deleteCategory = asyncHandler(async (req, res) => {
         success: true,
         message: 'Category deleted successfully'
     });
- })
+})
+ 
+const fn = async (cateProd) => {
+    await Category.create({
+        title: cateProd?.cate,
+        slug: slugify(cateProd?.cate),
+        brand: cateProd?.brand,
+    });
+}
+
+
+const insertCategory = asyncHandler(async (req, res) => { 
+    const promises = [];
+    for (let cateProd of cate_data) {
+        promises.push(fn(cateProd));
+    }
+    await Promise.all(promises);
+    return res.json({ message: 'Insert data successfully' });
+
+})
+
 module.exports = {
     createCategory,
     getCategories,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    insertCategory
 }
